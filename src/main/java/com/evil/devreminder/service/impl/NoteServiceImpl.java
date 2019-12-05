@@ -1,6 +1,7 @@
 package com.evil.devreminder.service.impl;
 
 import com.evil.devreminder.domain.Note;
+import com.evil.devreminder.domain.NoteType;
 import com.evil.devreminder.repository.NoteRepository;
 import com.evil.devreminder.service.NoteService;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +25,12 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public Optional<Note> findById(String id) {
         return noteRepository.findById(id);
+    }
+
+    @Override
+    public Note getRandomOneByType(NoteType type) {
+        List<Note> byNoteType = noteRepository.findByNoteType(type);
+        return byNoteType.get(new Random().nextInt(byNoteType.size()));
     }
 
     @Override
