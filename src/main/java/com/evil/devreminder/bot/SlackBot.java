@@ -2,8 +2,14 @@ package com.evil.devreminder.bot;
 
 import com.evil.devreminder.domain.Note;
 import com.evil.devreminder.domain.NoteType;
+import com.evil.devreminder.domain.Quote;
+import com.evil.devreminder.domain.Trivia;
+import com.evil.devreminder.domain.Weather;
 import com.evil.devreminder.service.MessageFormatter;
 import com.evil.devreminder.service.NoteService;
+import com.evil.devreminder.service.QuoteService;
+import com.evil.devreminder.service.TriviaService;
+import com.evil.devreminder.service.WeatherService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.ramswaroop.jbot.core.common.Controller;
@@ -24,8 +30,13 @@ public class SlackBot extends Bot {
     private String slackBotToken;
     @Value("${slackDMChannelId}")
     private String slackChannelId;
+    @Value("${weather.default.city}")
+    private String defaultCity;
 
     private final NoteService noteService;
+    private final QuoteService quoteService;
+    private final WeatherService weatherService;
+    private final TriviaService triviaService;
     private final MessageFormatter mf;
     private WebSocketSession activeSession;
 
@@ -48,20 +59,20 @@ public class SlackBot extends Bot {
 
     //@Scheduled(cron = "*/10 * * * * *")
     public void sendSoftwareNote() {
-        Note note = noteService.getRandomOneByType(NoteType.SOFTWARE);
+        Note note = noteService.getRandomNoteByType(NoteType.SOFTWARE);
         Event event = new Event();
         event.setType(EventType.DIRECT_MESSAGE.name());
         event.setChannelId(slackChannelId);
-        reply(activeSession, event, mf.bold(note.getNoteType().name()) + "\n" + mf.codified(note.getTitle()) + "\n" + note.getMessage());
+        reply(activeSession, event, mf.getNoteMessage(note));
     }
 
     //@Scheduled(cron = "*/10 * * * * *")
     public void sendMotivationNote() {
-        Note note = noteService.getRandomOneByType(NoteType.MOTIVATION);
+        Note note = noteService.getRandomNoteByType(NoteType.MOTIVATION);
         Event event = new Event();
         event.setType(EventType.DIRECT_MESSAGE.name());
         event.setChannelId(slackChannelId);
-        reply(activeSession, event, mf.bold(note.getNoteType().name()) + "\n" + mf.codified(note.getTitle()) + "\n" + note.getMessage());
+        reply(activeSession, event, mf.getNoteMessage(note));
     }
 
 
@@ -73,24 +84,41 @@ public class SlackBot extends Bot {
 
     @Controller(pattern = "help", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveHelp(WebSocketSession session, Event event) {
-        reply(session, event,
-                "Well, let`s see... Here is what can I do :\n" +
-                        "* `devy#get#SOFTWARE|MOTIVATION|software|motivation` - _get random note_\n" +
-                        "* `devy#get#QUOTE|quote` - _get random quote_\n" +
-                        "* `devy#get#TRIVIA|trivia` - _get a random trivia fact_\n" +
-                        "* `devy#get#WEATHER|weather#type your city` - _get weather for today for a city_\n" +
-                        "* `devy#get#DEX|dex#type your word` - _get definition for a word (DEX)_\n" +
-                        "* `devy#get#DEX-WOTD|DEX-WOTD` - _get word of the day (DEX)_\n" +
-                        "* `devy#get#HISTORY|history` - _get a history fact_\n" +
-                        "* `devy#add#SOFTWARE|MOTIVATION|software|motivation#type the title#type the description` - _add a new note_");
+        reply(session, event, mf.getHelpMessage());
     }
 
     @Controller(pattern = "(devy)#(get)#(SOFTWARE|MOTIVATION|software|motivation)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestRandomNote(WebSocketSession session, Event event, Matcher matcher) {
-        Note note = noteService.getRandomOneByType(NoteType.valueOf(matcher.group(3).toUpperCase()));
-        reply(session, event, mf.bold(note.getNoteType().name()) + "\n" + mf.codified(note.getTitle()) + "\n" + note.getMessage());
+        Note n = noteService.getRandomNoteByType(NoteType.valueOf(matcher.group(3).toUpperCase()));
+        reply(session, event, mf.getNoteMessage(n));
     }
 
+    @Controller(pattern = "(devy)#(get)#(QOD|qod)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    public void onReceiveRequestQuote(WebSocketSession session, Event event, Matcher matcher) {
+        Quote q = quoteService.getQuoteOfTheDay();
+        reply(session, event, mf.getQuoteMessage(q));
+    }
+
+    @Controller(pattern = "(devy)#(get)#(WEATHER|weather)#(\\w+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    public void onReceiveRequestWeather(WebSocketSession session, Event event, Matcher matcher) {
+        Weather w = weatherService.getWeatherFor(matcher.group(4));
+        reply(session, event, mf.getWeatherMessage(w));
+    }
+
+    @Controller(pattern = "(devy)#(get)#(TRIVIA|trivia)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    public void onReceiveRequestTrivia(WebSocketSession session, Event event, Matcher matcher) {
+        Trivia t = triviaService.getTriviaForToday();
+        reply(session, event, mf.getTriviaMessage(t));
+    }
+
+    @Controller(pattern = "(devy)#(get)#(COMPLEX|complex)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    public void onReceiveRequestComplex(WebSocketSession session, Event event, Matcher matcher) {
+        Trivia t = triviaService.getTriviaForToday();
+        Weather w = weatherService.getWeatherFor(defaultCity);
+        Note n = noteService.getRandomNoteByType(NoteType.SOFTWARE);
+        Quote q = quoteService.getQuoteOfTheDay();
+        reply(session, event, mf.getComplexMessage(n, w, q, t));
+    }
 
     @Controller(events = EventType.PIN_ADDED)
     public void onPinAdded(WebSocketSession session, Event event) {

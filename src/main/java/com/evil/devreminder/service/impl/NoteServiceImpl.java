@@ -28,7 +28,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public Note getRandomOneByType(NoteType type) {
+    public Note getRandomNoteByType(NoteType type) {
         List<Note> byNoteType = noteRepository.findByNoteType(type);
         return byNoteType.get(new Random().nextInt(byNoteType.size()));
     }

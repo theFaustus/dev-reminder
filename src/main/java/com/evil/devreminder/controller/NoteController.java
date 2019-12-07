@@ -1,6 +1,8 @@
 package com.evil.devreminder.controller;
 
 import com.evil.devreminder.domain.Note;
+import com.evil.devreminder.domain.NoteType;
+import com.evil.devreminder.service.CSVReaderService;
 import com.evil.devreminder.service.NoteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -11,12 +13,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 
 @RestController
@@ -25,8 +31,9 @@ import java.util.Optional;
 public class NoteController {
 
     private final NoteService noteService;
+    private final CSVReaderService csvReaderService;
 
-    @RequestMapping(value = "/list/", method = RequestMethod.GET)
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
     public HttpEntity<List<Note>> getAllNotes() {
         List<Note> notes = noteService.findAll();
         if (notes.isEmpty()) {
@@ -43,7 +50,7 @@ public class NoteController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @RequestMapping(value = "/note/", method = RequestMethod.POST)
+    @RequestMapping(value = "/note", method = RequestMethod.POST)
     public HttpEntity<?> saveNote(@RequestBody Note e) {
         if (noteService.noteExists(e)) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
@@ -78,9 +85,23 @@ public class NoteController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @RequestMapping(value = "/note/", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/note", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteAll() {
         noteService.deleteAll();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(value = "/upload", method = POST)
+    public ResponseEntity<?> uploadNotes(@RequestPart("notes") MultipartFile notes) {
+        try {
+            List<String[]> readLines = csvReaderService.read(notes.getInputStream());
+            readLines.stream()
+                    .skip(1)
+                    .forEach(line -> noteService.save(new Note(line[1], line[2], NoteType.valueOf(line[0]))));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        return ResponseEntity.ok("Saved");
     }
 }

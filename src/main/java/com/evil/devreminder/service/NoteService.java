@@ -11,7 +11,7 @@ public interface NoteService {
 
     Optional<Note> findById(String id);
 
-    Note getRandomOneByType(NoteType type);
+    Note getRandomNoteByType(NoteType type);
 
     void deleteById(String id);
 
