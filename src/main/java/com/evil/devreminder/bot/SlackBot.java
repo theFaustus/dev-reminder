@@ -96,43 +96,51 @@ public class SlackBot extends Bot {
         reply(session, event, mf.getHelpMessage());
     }
 
-    @Controller(pattern = "(devy)#(get)#(SOFTWARE|MOTIVATION|software|motivation)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = "(get)#(SOFTWARE|MOTIVATION|software|motivation)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestRandomNote(WebSocketSession session, Event event, Matcher matcher) {
-        Note n = noteService.getRandomNoteByType(NoteType.valueOf(matcher.group(3).toUpperCase()));
+        Note n = noteService.getRandomNoteByType(NoteType.valueOf(matcher.group(2).toUpperCase()));
         reply(session, event, mf.getNoteMessage(n));
     }
 
-    @Controller(pattern = "(devy)#(get)#(QOD|qod)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = "(get)#(QOD|qod)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestQuote(WebSocketSession session, Event event, Matcher matcher) {
         Quote q = quoteService.getQuoteOfTheDay();
         reply(session, event, mf.getQuoteMessage(q));
     }
 
-    @Controller(pattern = "(devy)#(get)#(WEATHER|weather)#(\\w+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = "(get)#(WEATHER|weather)#(\\w+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestWeather(WebSocketSession session, Event event, Matcher matcher) {
-        Weather w = weatherService.getWeatherFor(matcher.group(4));
+        Weather w = weatherService.getWeatherFor(matcher.group(3));
         reply(session, event, mf.getWeatherMessage(w));
     }
 
-    @Controller(pattern = "(devy)#(get)#(TRIVIA|trivia)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = "(get)#(TRIVIA|trivia)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestTrivia(WebSocketSession session, Event event, Matcher matcher) {
         Trivia t = triviaService.getTriviaForToday();
         reply(session, event, mf.getTriviaMessage(t));
     }
 
-    @Controller(pattern = "(devy)#(get)#(DEX-WOTD|dex-wotd)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = "(get)#(DEX-WOTD|dex-wotd)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestWordOfTheDay(WebSocketSession session, Event event, Matcher matcher) {
         Word w = dictionaryService.getRomanianWordOfTheDay();
         reply(session, event, mf.getDictionaryMessage(w));
     }
 
-    @Controller(pattern = "(devy)#(get)#(DEX|dex)#(\\w+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = "(get)#(DEX|dex)#(\\w+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestWordDefinition(WebSocketSession session, Event event, Matcher matcher) {
-        Word w = dictionaryService.getRomanianDefinitionFor(matcher.group(4));
+        Word w = dictionaryService.getRomanianDefinitionFor(matcher.group(3));
         reply(session, event, mf.getDictionaryMessage(w));
     }
 
-    @Controller(pattern = "(devy)#(get)#(COMPLEX|complex)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+
+    @Controller(pattern = "(add)#(SOFTWARE|MOTIVATION|software|motivation)#([\\W\\w\\s]+)#([\\W\\w\\s]+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    public void onReceiveAddNote(WebSocketSession session, Event event, Matcher matcher) {
+        Note n = new Note(matcher.group(3), matcher.group(4), NoteType.valueOf(matcher.group(2).toUpperCase()));
+        noteService.save(n);
+        reply(session, event, mf.getNoteMessage(n));
+    }
+
+    @Controller(pattern = "(get)#(COMPLEX|complex)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestComplex(WebSocketSession session, Event event, Matcher matcher) {
         Trivia t = triviaService.getTriviaForToday();
         Weather w = weatherService.getWeatherFor(defaultCity);

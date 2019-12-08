@@ -99,14 +99,13 @@ public class SlackMessageFormatterImpl implements MessageFormatter {
     @Override
     public String getHelpMessage() {
         return "Well, let`s see... Here is what can I do :\n" +
-                codified("devy#get#SOFTWARE|MOTIVATION|software|motivation") + " - " + italic("get random note") + "\n" +
-                codified("devy#get#QOD|qod") + " - " + italic("get quote of the day") + "\n" +
-                codified("devy#get#TRIVIA|trivia") + " - " + italic("get a random trivia fact") + "\n" +
-                codified("devy#get#WEATHER|weather#type your city") + " - " + italic("get weather for today for a city") + "\n" +
-                codified("devy#get#DEX|dex#type your word") + " - " + italic("get definition for a word (DEX)") + "\n" +
-                codified("devy#get#DEX-WOTD|DEX-WOTD") + " - " + italic("get word of the day (DEX)") + "\n" +
-                codified("devy#get#HISTORY|history") + " - " + italic("get a history fact") + "\n" +
-                codified("devy#add#SOFTWARE|MOTIVATION|software|motivation#type the title#type the description") + " - " + italic("add a new note");
+                codified("get#SOFTWARE|MOTIVATION|software|motivation") + " - " + italic("get random note") + "\n" +
+                codified("get#QOD|qod") + " - " + italic("get quote of the day") + "\n" +
+                codified("get#TRIVIA|trivia") + " - " + italic("get a random trivia fact") + "\n" +
+                codified("get#WEATHER|weather#type your city") + " - " + italic("get weather for today for a city") + "\n" +
+                codified("get#DEX|dex#type your word") + " - " + italic("get definition for a word (DEX)") + "\n" +
+                codified("get#DEX-WOTD|DEX-WOTD") + " - " + italic("get word of the day (DEX)") + "\n" +
+                codified("add#SOFTWARE|MOTIVATION|software|motivation#type the title#type the description") + " - " + italic("add a new note");
     }
 
 }
