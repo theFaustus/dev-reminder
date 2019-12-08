@@ -5,6 +5,8 @@ import com.evil.devreminder.domain.NoteType;
 import com.evil.devreminder.domain.Quote;
 import com.evil.devreminder.domain.Trivia;
 import com.evil.devreminder.domain.Weather;
+import com.evil.devreminder.domain.Word;
+import com.evil.devreminder.service.DictionaryService;
 import com.evil.devreminder.service.MessageFormatter;
 import com.evil.devreminder.service.NoteService;
 import com.evil.devreminder.service.QuoteService;
@@ -37,7 +39,9 @@ public class SlackBot extends Bot {
     private final QuoteService quoteService;
     private final WeatherService weatherService;
     private final TriviaService triviaService;
+    private final DictionaryService dictionaryService;
     private final MessageFormatter mf;
+
     private WebSocketSession activeSession;
 
     @Override
@@ -111,13 +115,26 @@ public class SlackBot extends Bot {
         reply(session, event, mf.getTriviaMessage(t));
     }
 
+    @Controller(pattern = "(devy)#(get)#(DEX-WOTD|dex-wotd)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    public void onReceiveRequestWordOfTheDay(WebSocketSession session, Event event, Matcher matcher) {
+        Word w = dictionaryService.getRomanianWordOfTheDay();
+        reply(session, event, mf.getDictionaryMessage(w));
+    }
+
+    @Controller(pattern = "(devy)#(get)#(DEX|dex)#(\\w+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    public void onReceiveRequestWordDefinition(WebSocketSession session, Event event, Matcher matcher) {
+        Word w = dictionaryService.getRomanianDefinitionFor(matcher.group(4));
+        reply(session, event, mf.getDictionaryMessage(w));
+    }
+
     @Controller(pattern = "(devy)#(get)#(COMPLEX|complex)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestComplex(WebSocketSession session, Event event, Matcher matcher) {
         Trivia t = triviaService.getTriviaForToday();
         Weather w = weatherService.getWeatherFor(defaultCity);
         Note n = noteService.getRandomNoteByType(NoteType.SOFTWARE);
         Quote q = quoteService.getQuoteOfTheDay();
-        reply(session, event, mf.getComplexMessage(n, w, q, t));
+        Word wd = dictionaryService.getRomanianWordOfTheDay();
+        reply(session, event, mf.getComplexMessage(n, w, q, t, wd));
     }
 
     @Controller(events = EventType.PIN_ADDED)

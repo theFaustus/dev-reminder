@@ -4,6 +4,7 @@ import com.evil.devreminder.domain.Note;
 import com.evil.devreminder.domain.Quote;
 import com.evil.devreminder.domain.Trivia;
 import com.evil.devreminder.domain.Weather;
+import com.evil.devreminder.domain.Word;
 
 public interface MessageFormatter {
     String bold(String text);
@@ -17,6 +18,7 @@ public interface MessageFormatter {
     String getWeatherMessage(Weather w);
     String getQuoteMessage(Quote q);
     String getTriviaMessage(Trivia t);
-    String getComplexMessage(Note n, Weather w, Quote q, Trivia t);
+    String getDictionaryMessage(Word w);
+    String getComplexMessage(Note n, Weather w, Quote q, Trivia t, Word wd);
     String getHelpMessage();
 }

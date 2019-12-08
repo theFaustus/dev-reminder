@@ -4,6 +4,7 @@ import com.evil.devreminder.domain.Note;
 import com.evil.devreminder.domain.Quote;
 import com.evil.devreminder.domain.Trivia;
 import com.evil.devreminder.domain.Weather;
+import com.evil.devreminder.domain.Word;
 import com.evil.devreminder.service.MessageFormatter;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.stereotype.Service;
@@ -72,7 +73,12 @@ public class SlackMessageFormatterImpl implements MessageFormatter {
     }
 
     @Override
-    public String getComplexMessage(Note n, Weather w, Quote q, Trivia t) {
+    public String getDictionaryMessage(Word w) {
+        return bold(w.getTerm()) + " - " + w.getDefinition() + "\n";
+    }
+
+    @Override
+    public String getComplexMessage(Note n, Weather w, Quote q, Trivia t, Word wd) {
         return "Good day sir! Today is " +
                 LocalDateTime.now()
                         .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
@@ -81,6 +87,7 @@ public class SlackMessageFormatterImpl implements MessageFormatter {
                 getWeatherMessage(w) + "\n\n" +
                 getQuoteMessage(q) + "\n\n" +
                 getTriviaMessage(t) + "\n\n" +
+                getDictionaryMessage(wd) + "\n\n" +
                 getNoteMessage(n);
     }
 
