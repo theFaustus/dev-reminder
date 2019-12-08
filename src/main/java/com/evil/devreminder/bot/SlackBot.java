@@ -20,6 +20,7 @@ import me.ramswaroop.jbot.core.common.JBot;
 import me.ramswaroop.jbot.core.slack.Bot;
 import me.ramswaroop.jbot.core.slack.models.Event;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.regex.Matcher;
@@ -61,16 +62,21 @@ public class SlackBot extends Bot {
         log.info("Connection established. Active session > " + this.activeSession);
     }
 
-    //@Scheduled(cron = "*/10 * * * * *")
-    public void sendSoftwareNote() {
-        Note note = noteService.getRandomNoteByType(NoteType.SOFTWARE);
+
+    @Scheduled(cron = "${note.complex.cron.expression}")
+    public void sendComplexNote() {
+        Trivia t = triviaService.getTriviaForToday();
+        Weather w = weatherService.getWeatherFor(defaultCity);
+        Note n = noteService.getRandomNoteByType(NoteType.SOFTWARE);
+        Quote q = quoteService.getQuoteOfTheDay();
+        Word wd = dictionaryService.getRomanianWordOfTheDay();
         Event event = new Event();
         event.setType(EventType.DIRECT_MESSAGE.name());
         event.setChannelId(slackChannelId);
-        reply(activeSession, event, mf.getNoteMessage(note));
+        reply(activeSession, event, mf.getComplexMessage(n, w, q, t, wd));
     }
 
-    //@Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "${note.motivation.cron.expression}")
     public void sendMotivationNote() {
         Note note = noteService.getRandomNoteByType(NoteType.MOTIVATION);
         Event event = new Event();
@@ -78,7 +84,6 @@ public class SlackBot extends Bot {
         event.setChannelId(slackChannelId);
         reply(activeSession, event, mf.getNoteMessage(note));
     }
-
 
     @Controller(events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveUnknown(WebSocketSession session, Event event) {
