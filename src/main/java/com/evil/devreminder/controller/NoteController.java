@@ -5,7 +5,6 @@ import com.evil.devreminder.domain.NoteType;
 import com.evil.devreminder.service.CSVReaderService;
 import com.evil.devreminder.service.NoteService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +33,7 @@ public class NoteController {
     private final CSVReaderService csvReaderService;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public HttpEntity<List<Note>> getAllNotes() {
+    public ResponseEntity<List<Note>> getAllNotes() {
         List<Note> notes = noteService.findAll();
         if (notes.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -44,14 +43,14 @@ public class NoteController {
     }
 
     @RequestMapping(value = "/note/{id}", method = RequestMethod.GET)
-    public HttpEntity<Note> getNoteById(@PathVariable("id") String id) {
+    public ResponseEntity<Note> getNoteById(@PathVariable("id") String id) {
         return noteService.findById(id)
-                .<HttpEntity<Note>>map(note -> new ResponseEntity<>(note, HttpStatus.OK))
+                .map(note -> new ResponseEntity<>(note, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @RequestMapping(value = "/note", method = RequestMethod.POST)
-    public HttpEntity<?> saveNote(@RequestBody Note e) {
+    public ResponseEntity<?> saveNote(@RequestBody Note e) {
         if (noteService.noteExists(e)) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         } else {
@@ -66,7 +65,7 @@ public class NoteController {
     }
 
     @RequestMapping(value = "/note/{id}", method = RequestMethod.PUT)
-    public HttpEntity<?> updateNote(@PathVariable("id") String id, @RequestBody Note e) {
+    public ResponseEntity<?> updateNote(@PathVariable("id") String id, @RequestBody Note e) {
         Optional<Note> byId = noteService.findById(id);
         if(byId.isPresent()){
             Note note = byId.get();
