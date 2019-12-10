@@ -93,13 +93,13 @@ public class SlackBot extends Bot {
 
     @Controller(pattern = "help", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveHelp(WebSocketSession session, Event event) {
-        reply(session, event, mf.getHelpMessage());
+        reply(session, event, mf.getHelpMessage() + mf.getWakeMeUpMessage());
     }
 
     @Controller(pattern = "(get)#(SOFTWARE|MOTIVATION|software|motivation)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestRandomNote(WebSocketSession session, Event event, Matcher matcher) {
         Note n = noteService.getRandomNoteByType(NoteType.valueOf(matcher.group(2).toUpperCase()));
-        reply(session, event, mf.getNoteMessage(n));
+        reply(session, event, mf.getNoteMessage(n) + mf.getWakeMeUpMessage());
     }
 
     @Controller(pattern = "(get)#(QOD|qod)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
@@ -147,7 +147,7 @@ public class SlackBot extends Bot {
         Note n = noteService.getRandomNoteByType(NoteType.SOFTWARE);
         Quote q = quoteService.getQuoteOfTheDay();
         Word wd = dictionaryService.getRomanianWordOfTheDay();
-        reply(session, event, mf.getComplexMessage(n, w, q, t, wd));
+        reply(session, event, mf.getComplexMessage(n, w, q, t, wd) + mf.getWakeMeUpMessage());
     }
 
     @Controller(events = EventType.PIN_ADDED)

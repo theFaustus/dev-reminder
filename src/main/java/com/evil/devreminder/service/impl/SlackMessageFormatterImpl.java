@@ -97,6 +97,12 @@ public class SlackMessageFormatterImpl implements MessageFormatter {
     }
 
     @Override
+    public String getWakeMeUpMessage() {
+        return "\n\t\t\t\t\uD83D\uDCA4 If I am sleepy, wake me up (https://dev-reminder.herokuapp.com/actuator/health).";
+    }
+
+
+    @Override
     public String getHelpMessage() {
         return "Well, let`s see... Here is what can I do :\n" +
                 codified("get#SOFTWARE|MOTIVATION|software|motivation") + " - " + italic("get random note") + "\n" +

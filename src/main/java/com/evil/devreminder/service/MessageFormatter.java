@@ -20,5 +20,7 @@ public interface MessageFormatter {
     String getTriviaMessage(Trivia t);
     String getDictionaryMessage(Word w);
     String getComplexMessage(Note n, Weather w, Quote q, Trivia t, Word wd);
+    String getWakeMeUpMessage();
+
     String getHelpMessage();
 }
