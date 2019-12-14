@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -16,6 +17,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class NoteServiceImpl implements NoteService {
     private final NoteRepository noteRepository;
+    private List<Integer> seenNotes = new ArrayList<>();
 
     @Override
     public Note save(Note note) {
@@ -30,7 +32,24 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public Note getRandomNoteByType(NoteType type) {
         List<Note> notes = noteRepository.findByNoteType(type);
-        return notes.isEmpty() ? new Note("unknown", "unknown", type) : notes.get(new Random().nextInt(notes.size()));
+        int randomNoteIndex = type == NoteType.SOFTWARE
+                ? getRandomNonRepeatingNoteIndex(notes.size())
+                : new Random().nextInt(notes.size());
+        return notes.isEmpty() ? new Note("unknown", "unknown", type) : notes.get(randomNoteIndex);
+    }
+
+    public int getRandomNonRepeatingNoteIndex(int bound) {
+        Random r = new Random();
+        int index = r.nextInt(bound);
+        int tries = 0;
+        while (seenNotes.contains(index)) {
+            index = r.nextInt(bound);
+            tries++;
+            if (tries > 10)
+                seenNotes = new ArrayList<>();
+        }
+        seenNotes.add(index);
+        return index;
     }
 
     @Override

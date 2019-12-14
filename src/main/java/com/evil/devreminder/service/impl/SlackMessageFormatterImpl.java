@@ -105,13 +105,13 @@ public class SlackMessageFormatterImpl implements MessageFormatter {
     @Override
     public String getHelpMessage() {
         return "Well, let`s see... Here is what can I do :\n" +
-                codified("get#SOFTWARE|MOTIVATION|software|motivation") + " - " + italic("get random note") + "\n" +
+                codified("get#SOFTWARE|MOTIVATION|PRACTICES|software|motivation|practices") + " - " + italic("get random note") + "\n" +
                 codified("get#QOD|qod") + " - " + italic("get quote of the day") + "\n" +
                 codified("get#TRIVIA|trivia") + " - " + italic("get a random trivia fact") + "\n" +
                 codified("get#WEATHER|weather#type your city") + " - " + italic("get weather for today for a city") + "\n" +
                 codified("get#DEX|dex#type your word") + " - " + italic("get definition for a word (DEX)") + "\n" +
                 codified("get#DEX-WOTD|DEX-WOTD") + " - " + italic("get word of the day (DEX)") + "\n" +
-                codified("add#SOFTWARE|MOTIVATION|software|motivation#type the title#type the description") + " - " + italic("add a new note");
+                codified("add#SOFTWARE|MOTIVATION|PRACTICES|software|motivation|practices#type the title#type the description") + " - " + italic("add a new note");
     }
 
 }

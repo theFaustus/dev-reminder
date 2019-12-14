@@ -85,6 +85,16 @@ public class SlackBot extends Bot {
         reply(activeSession, event, mf.getNoteMessage(note));
     }
 
+    @Scheduled(cron = "${note.practices.cron.expression}")
+    public void sendPracticesNote() {
+        Note note = noteService.getRandomNoteByType(NoteType.PRACTICES);
+        Event event = new Event();
+        event.setType(EventType.DIRECT_MESSAGE.name());
+        event.setChannelId(slackChannelId);
+        reply(activeSession, event, mf.getNoteMessage(note));
+    }
+
+
     @Controller(events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveUnknown(WebSocketSession session, Event event) {
         reply(session, event, "Hi, I am " + slackService.getCurrentUser().getName() + ". My creator is Ion Pascari. " +
@@ -96,7 +106,7 @@ public class SlackBot extends Bot {
         reply(session, event, mf.getHelpMessage() + mf.getWakeMeUpMessage());
     }
 
-    @Controller(pattern = "(get)#(SOFTWARE|MOTIVATION|software|motivation)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = "(get)#(SOFTWARE|MOTIVATION|PRACTICES|software|motivation|practices)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestRandomNote(WebSocketSession session, Event event, Matcher matcher) {
         Note n = noteService.getRandomNoteByType(NoteType.valueOf(matcher.group(2).toUpperCase()));
         reply(session, event, mf.getNoteMessage(n) + mf.getWakeMeUpMessage());
@@ -133,7 +143,7 @@ public class SlackBot extends Bot {
     }
 
 
-    @Controller(pattern = "(add)#(SOFTWARE|MOTIVATION|software|motivation)#([\\W\\w\\s]+)#([\\W\\w\\s]+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = "(add)#(SOFTWARE|MOTIVATION|PRACTICES|software|motivation|practices)#([\\W\\w\\s]+)#([\\W\\w\\s]+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveAddNote(WebSocketSession session, Event event, Matcher matcher) {
         Note n = new Note(matcher.group(3), matcher.group(4), NoteType.valueOf(matcher.group(2).toUpperCase()));
         noteService.save(n);
