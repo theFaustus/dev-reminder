@@ -6,9 +6,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +25,10 @@ public class QuoteServiceImpl implements QuoteService {
 
     @Override
     public Quote getQuoteOfTheDay() {
-        ResponseEntity<String> response = restTemplate.getForEntity(HTTPS_QUOTES_REST + "/qod", String.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(HTTPS_QUOTES_REST + "/qod", HttpMethod.GET, requestEntity, String.class);
         try {
             JsonNode root = new ObjectMapper().readTree(response.getBody());
             return new Quote(
