@@ -207,7 +207,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
 
     private class ComplexNoteCommand extends BotCommand {
         public ComplexNoteCommand() {
-            super("complex", "Get a complex note containing most of the features of the bot");
+            super("complex", "get a complex note containing most of the features of the bot");
         }
 
         @Override
@@ -227,7 +227,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
 
     private class RegularNoteCommand extends BotCommand {
         public RegularNoteCommand() {
-            super("regular", "Get a simple note by category");
+            super("regular", "get a simple note by category");
         }
 
         @Override
@@ -277,7 +277,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         private final NoteService noteService;
 
         public RegularSoftwareNoteCommand(final MessageFormatter mf, final NoteService noteService) {
-            super("/regular_software", "Get a simple software note");
+            super("/regular_software", "get a simple software note");
             this.mf = mf;
             this.noteService = noteService;
         }
@@ -298,7 +298,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         private final NoteService noteService;
 
         public RegularPracticesNoteCommand(final MessageFormatter mf, final NoteService noteService) {
-            super("/regular_practices", "Get a simple practices note");
+            super("/regular_practices", "get a simple practices note");
             this.mf = mf;
             this.noteService = noteService;
         }
@@ -319,7 +319,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         private final NoteService noteService;
 
         public RegularMotivationNoteCommand(final MessageFormatter mf, final NoteService noteService) {
-            super("/regular_motivation", "Get a simple motivation note");
+            super("/regular_motivation", "get a simple motivation note");
             this.mf = mf;
             this.noteService = noteService;
         }
@@ -340,7 +340,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         private final QuoteService quoteService;
 
         public QuoteOfTheDayCommand(final MessageFormatter mf, final QuoteService quoteService) {
-            super("/qod", "Get quote of the day");
+            super("/qod", "get quote of the day");
             this.mf = mf;
             this.quoteService = quoteService;
         }
@@ -361,7 +361,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         private final TriviaService triviaService;
 
         public TriviaCommand(final MessageFormatter mf, final TriviaService triviaService) {
-            super("/trivia", "Get some nice trivia of the day");
+            super("/trivia", "get some nice trivia of the day");
             this.mf = mf;
             this.triviaService = triviaService;
         }
@@ -382,7 +382,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         private final WeatherService weatherService;
 
         public WeatherCommand(final MessageFormatter mf, final WeatherService weatherService) {
-            super("/weather", "Get weather at the moment");
+            super("/weather", "get weather at the moment");
             this.mf = mf;
             this.weatherService = weatherService;
         }
@@ -403,7 +403,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         private final WeatherService weatherService;
 
         public WeatherForecastCommand(final MessageFormatter mf, final WeatherService weatherService) {
-            super("/wthr_dly", "Get weather for days ahead");
+            super("/wthr_dly", "get weather for days ahead");
             this.mf = mf;
             this.weatherService = weatherService;
         }
@@ -425,7 +425,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         private final DictionaryService dictionaryService;
 
         public DexWordOfTheDayCommand(final MessageFormatter mf, final DictionaryService dictionaryService) {
-            super("/dexwotd", "Get DEX word of the day");
+            super("/dexwotd", "get DEX word of the day");
             this.mf = mf;
             this.dictionaryService = dictionaryService;
         }
@@ -446,7 +446,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         private final DictionaryService dictionaryService;
 
         public MerriamWordOfTheDayCommand(final MessageFormatter mf, final DictionaryService dictionaryService) {
-            super("/merrwotd", "Get Merriam-Webster word of the day");
+            super("/merrwotd", "get Merriam-Webster word of the day");
             this.mf = mf;
             this.dictionaryService = dictionaryService;
         }
