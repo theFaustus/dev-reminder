@@ -1,5 +1,6 @@
-package com.evil.devreminder.bot;
+package com.evil.devreminder.bot.slack;
 
+import com.evil.devreminder.bot.CommandPattern;
 import com.evil.devreminder.domain.Note;
 import com.evil.devreminder.domain.NoteType;
 import com.evil.devreminder.domain.Quote;
@@ -63,9 +64,8 @@ public class SlackBot extends Bot {
     }
 
 
-    @Scheduled(cron = "${note.complex.cron.expression}")
+//    @Scheduled(cron = "${note.complex.cron.expression}")
     public void sendComplexNote() {
-        Trivia t = triviaService.getTriviaForToday();
         Weather w = weatherService.getWeatherFor(defaultCity);
         Note n = noteService.getRandomNoteByType(NoteType.SOFTWARE);
         Quote q = quoteService.getQuoteOfTheDay();
@@ -73,10 +73,10 @@ public class SlackBot extends Bot {
         Event event = new Event();
         event.setType(EventType.DIRECT_MESSAGE.name());
         event.setChannelId(slackChannelId);
-        reply(activeSession, event, mf.getComplexMessage(n, w, q, t, wd));
+        reply(activeSession, event, mf.getComplexMessage(n, w, q, wd));
     }
 
-    @Scheduled(cron = "${note.motivation.cron.expression}")
+//    @Scheduled(cron = "${note.motivation.cron.expression}")
     public void sendMotivationNote() {
         Note note = noteService.getRandomNoteByType(NoteType.MOTIVATION);
         Event event = new Event();
@@ -85,7 +85,7 @@ public class SlackBot extends Bot {
         reply(activeSession, event, mf.getNoteMessage(note));
     }
 
-    @Scheduled(cron = "${note.practices.cron.expression}")
+//    @Scheduled(cron = "${note.practices.cron.expression}")
     public void sendPracticesNote() {
         Note note = noteService.getRandomNoteByType(NoteType.PRACTICES);
         Event event = new Event();
@@ -106,51 +106,51 @@ public class SlackBot extends Bot {
         reply(session, event, mf.getHelpMessage() + mf.getWakeMeUpMessage());
     }
 
-    @Controller(pattern = "(get)#(SOFTWARE|MOTIVATION|PRACTICES|software|motivation|practices)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = CommandPattern.REGULAR_NOTE, events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestRandomNote(WebSocketSession session, Event event, Matcher matcher) {
         Note n = noteService.getRandomNoteByType(NoteType.valueOf(matcher.group(2).toUpperCase()));
         reply(session, event, mf.getNoteMessage(n) + mf.getWakeMeUpMessage());
     }
 
-    @Controller(pattern = "(get)#(QOD|qod)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = CommandPattern.QOD, events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestQuote(WebSocketSession session, Event event, Matcher matcher) {
         Quote q = quoteService.getQuoteOfTheDay();
         reply(session, event, mf.getQuoteMessage(q));
     }
 
-    @Controller(pattern = "(get)#(WEATHER|weather)#(\\w+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = CommandPattern.WEATHER, events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestWeather(WebSocketSession session, Event event, Matcher matcher) {
         Weather w = weatherService.getWeatherFor(matcher.group(3));
         reply(session, event, mf.getWeatherMessage(w));
     }
 
-    @Controller(pattern = "(get)#(TRIVIA|trivia)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = CommandPattern.TRIVIA, events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestTrivia(WebSocketSession session, Event event, Matcher matcher) {
         Trivia t = triviaService.getTriviaForToday();
         reply(session, event, mf.getTriviaMessage(t));
     }
 
-    @Controller(pattern = "(get)#(DEX-WOTD|dex-wotd)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = CommandPattern.DEX_WOTD, events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestWordOfTheDay(WebSocketSession session, Event event, Matcher matcher) {
         Word w = dictionaryService.getRomanianWordOfTheDay();
         reply(session, event, mf.getDictionaryMessage(w));
     }
 
-    @Controller(pattern = "(get)#(DEX|dex)#(\\w+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = CommandPattern.DEX_DEF, events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestWordDefinition(WebSocketSession session, Event event, Matcher matcher) {
         Word w = dictionaryService.getRomanianDefinitionFor(matcher.group(3));
         reply(session, event, mf.getDictionaryMessage(w));
     }
 
 
-    @Controller(pattern = "(add)#(SOFTWARE|MOTIVATION|PRACTICES|software|motivation|practices)#([\\W\\w\\s]+)#([\\W\\w\\s]+)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = CommandPattern.ADD_NOTE, events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveAddNote(WebSocketSession session, Event event, Matcher matcher) {
         Note n = new Note(matcher.group(3), matcher.group(4), NoteType.valueOf(matcher.group(2).toUpperCase()));
         noteService.save(n);
         reply(session, event, mf.getNoteMessage(n));
     }
 
-    @Controller(pattern = "(get)#(COMPLEX|complex)", events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
+    @Controller(pattern = CommandPattern.COMPLEX_NOTE, events = {EventType.DIRECT_MENTION, EventType.DIRECT_MESSAGE})
     public void onReceiveRequestComplex(WebSocketSession session, Event event, Matcher matcher) {
         Trivia t = triviaService.getTriviaForToday();
         Weather w = weatherService.getWeatherFor(defaultCity);
