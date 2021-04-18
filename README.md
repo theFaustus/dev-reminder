@@ -1,11 +1,11 @@
 # dev-reminder
 A small bot designed to help with reminding notes from books and other interesting features. Firstly designed to work 
 with Slack, now moved to Telegram (Slack is still supported).
-###Telegram demo
+### Telegram demo
 Here is everything you can do
 ![alt text](https://i.imgur.com/7kw1QvI.gif)
 
-###Slack demo
+### Slack demo
 You can ask for help
 ![alt text](https://i.imgur.com/nI65TqB.gif)
 
