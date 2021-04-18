@@ -80,6 +80,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         register(new WeatherForecastCommand(mf, weatherService));
         register(new DexWordOfTheDayCommand(mf, dictionaryService));
         register(new MerriamWordOfTheDayCommand(mf, dictionaryService));
+        register(new HelpCommand());
 
     }
 
