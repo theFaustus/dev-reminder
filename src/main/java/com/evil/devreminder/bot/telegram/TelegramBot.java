@@ -81,7 +81,6 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         register(new DexWordOfTheDayCommand(mf, dictionaryService));
         register(new MerriamWordOfTheDayCommand(mf, dictionaryService));
 
-        register(new HelpCommand("help", "Provides help", "Commands are : /complex"));
     }
 
     @Override
@@ -157,7 +156,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
 
     private class StartCommand extends BotCommand {
         public StartCommand() {
-            super("start", "Basic menu");
+            super("/start", "Basic menu");
         }
 
         @Override
@@ -207,7 +206,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
 
     private class ComplexNoteCommand extends BotCommand {
         public ComplexNoteCommand() {
-            super("complex", "get a complex note containing most of the features of the bot");
+            super("/complex", "get a complex note containing most of the features of the bot");
         }
 
         @Override
@@ -227,7 +226,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
 
     private class RegularNoteCommand extends BotCommand {
         public RegularNoteCommand() {
-            super("regular", "get a simple note by category");
+            super("/regular", "get a simple note by category");
         }
 
         @Override
