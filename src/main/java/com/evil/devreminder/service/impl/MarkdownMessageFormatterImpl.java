@@ -24,7 +24,7 @@ import java.util.List;
 public class MarkdownMessageFormatterImpl implements MessageFormatter {
 
     public static final String BOLD_CHAR = "*";
-    private static final String ITALIC_CHAR = "\\_";
+    private static final String ITALIC_CHAR = "_";
     private static final String CODE_BLOCK_CHAR = "```";
     private static final String CODE_CHAR = "`";
     private static final String STRIKETHROUGH_CHAR = "~";

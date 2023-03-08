@@ -1,6 +1,7 @@
 package com.evil.devreminder.config;
 
 import com.evil.devreminder.bot.telegram.TelegramBot;
+import com.evil.devreminder.service.QuoteService;
 import com.evil.devreminder.service.RssFeedReader;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
