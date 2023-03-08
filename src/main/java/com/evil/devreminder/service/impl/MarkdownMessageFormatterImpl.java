@@ -2,6 +2,7 @@ package com.evil.devreminder.service.impl;
 
 import com.evil.devreminder.domain.Crypto;
 import com.evil.devreminder.domain.CryptoFearGreedIndex;
+import com.evil.devreminder.domain.NewsArticle;
 import com.evil.devreminder.domain.Note;
 import com.evil.devreminder.domain.Picture;
 import com.evil.devreminder.domain.Quote;
@@ -139,6 +140,18 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
                     .append(n.getTitle()).append("\n")
                     .append(codifiedBlock(StringEscapeUtils.unescapeJava(n.getMessage())))
                     .append("\n\n");
+        }
+        return stringBuilder.toString();
+    }
+
+    @Override
+    public String getNewsArticlesMessage(List<NewsArticle> articles) {
+        if (articles.isEmpty()) return "No articles found";
+        StringBuilder stringBuilder = new StringBuilder();
+        for (final NewsArticle n : articles) {
+            stringBuilder
+                    .append("⚡️ ").append(namedLink(n.getTitle(), n.getLink()))
+                    .append("\n");
         }
         return stringBuilder.toString();
     }

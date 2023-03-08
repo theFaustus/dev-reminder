@@ -2,6 +2,7 @@ package com.evil.devreminder.bot.telegram;
 
 import com.evil.devreminder.domain.Crypto;
 import com.evil.devreminder.domain.CryptoFearGreedIndex;
+import com.evil.devreminder.domain.NewsArticle;
 import com.evil.devreminder.domain.Note;
 import com.evil.devreminder.domain.NoteType;
 import com.evil.devreminder.domain.Picture;
@@ -15,6 +16,7 @@ import com.evil.devreminder.service.MessageFormatter;
 import com.evil.devreminder.service.NoteService;
 import com.evil.devreminder.service.PictureService;
 import com.evil.devreminder.service.QuoteService;
+import com.evil.devreminder.service.RssFeedReader;
 import com.evil.devreminder.service.TriviaService;
 import com.evil.devreminder.service.WeatherService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,6 @@ import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.telegram.telegrambots.meta.api.methods.ParseMode.MARKDOWN;
@@ -49,6 +50,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
     private final TriviaService triviaService;
     private final PictureService pictureService;
     private final DictionaryService dictionaryService;
+    private final RssFeedReader rssFeedReader;
     private final CryptoService cryptoService;
     private final MessageFormatter mf;
     @Value("${telegramBotName}")
@@ -68,13 +70,14 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
                        final WeatherService weatherService, final TriviaService triviaService,
                        final PictureService pictureService,
                        final DictionaryService dictionaryService,
-                       final CryptoService cryptoService, final MessageFormatter mf) {
+                       RssFeedReader rssFeedReader, final CryptoService cryptoService, final MessageFormatter mf) {
         this.noteService = noteService;
         this.quoteService = quoteService;
         this.weatherService = weatherService;
         this.triviaService = triviaService;
         this.pictureService = pictureService;
         this.dictionaryService = dictionaryService;
+        this.rssFeedReader = rssFeedReader;
         this.cryptoService = cryptoService;
         this.mf = mf;
 
@@ -96,6 +99,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         register(new CryptoCommand(mf));
         register(new DexWordOfTheDayCommand(mf));
         register(new MerriamWordOfTheDayCommand(mf));
+        register(new NewsArticlesCommand(mf));
         register(new RegularNoteCommand());
         register(new HelpCommand());
 
@@ -159,6 +163,13 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         Note note = noteService.getRandomNoteByType(NoteType.MOTIVATION);
         final String noteMessage = mf.getNoteMessage(note);
         send(computeTelegramMessage(noteMessage));
+    }
+
+    @Scheduled(cron = "${note.news.cron.expression}")
+    public void sendNewsNote() {
+        List<NewsArticle> articles = rssFeedReader.getArticles();
+        final String newsArticlesMessage = mf.getNewsArticlesMessage(articles);
+        send(computeTelegramMessage(newsArticlesMessage));
     }
 
     @Scheduled(cron = "${note.practices.cron.expression}")
@@ -234,6 +245,9 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
                 row.add("/crypto");
                 keyboardRowList.add(row);
 
+                row = new KeyboardRow();
+                row.add("/news");
+                keyboardRowList.add(row);
 
                 replyKeyboardMarkup.setKeyboard(keyboardRowList);
                 sendMessage.setReplyMarkup(replyKeyboardMarkup);
@@ -435,6 +449,25 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         @Override
         public void execute(final AbsSender absSender, final User user, final Chat chat, final String[] strings) {
             final String noteMessage = mf.getJpaNoteMessage(noteService.getRandomNoteByType(NoteType.JPA));
+            try {
+                absSender.execute(computeTelegramMessage(noteMessage));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class NewsArticlesCommand extends BotCommand {
+        private final MessageFormatter mf;
+
+        public NewsArticlesCommand(final MessageFormatter mf) {
+            super("/news", "get some news");
+            this.mf = mf;
+        }
+
+        @Override
+        public void execute(final AbsSender absSender, final User user, final Chat chat, final String[] strings) {
+            final String noteMessage = mf.getNewsArticlesMessage(rssFeedReader.getArticles());
             try {
                 absSender.execute(computeTelegramMessage(noteMessage));
             } catch (TelegramApiException e) {

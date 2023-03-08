@@ -1,9 +1,7 @@
 package com.evil.devreminder.config;
 
 import com.evil.devreminder.bot.telegram.TelegramBot;
-import com.evil.devreminder.domain.CryptoFearGreedIndex;
-import com.evil.devreminder.service.CSVReaderService;
-import com.evil.devreminder.service.CryptoService;
+import com.evil.devreminder.service.RssFeedReader;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -14,8 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
-
-import java.io.FileInputStream;
 
 @SpringBootApplication(scanBasePackages = {"me.ramswaroop.jbot", "com.evil.devreminder"})
 @EnableScheduling
@@ -33,7 +29,7 @@ public class DevReminderApplication {
 	}
 
 	@Bean
-	public CommandLineRunner commandLineRunner(TelegramBot telegramBot, CryptoService cryptoService){
+	public CommandLineRunner commandLineRunner(TelegramBot telegramBot){
     	return args -> {
 //    		csvReaderService.process(new FileInputStream("C:\\Users\\ipascari\\notes.csv"));
 			TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);

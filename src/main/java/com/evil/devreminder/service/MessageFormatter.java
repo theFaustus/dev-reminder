@@ -2,6 +2,7 @@ package com.evil.devreminder.service;
 
 import com.evil.devreminder.domain.Crypto;
 import com.evil.devreminder.domain.CryptoFearGreedIndex;
+import com.evil.devreminder.domain.NewsArticle;
 import com.evil.devreminder.domain.Note;
 import com.evil.devreminder.domain.Picture;
 import com.evil.devreminder.domain.Quote;
@@ -54,4 +55,6 @@ public interface MessageFormatter {
 
     String getWakeMeUpMessage();
     String getHelpMessage();
+
+    String getNewsArticlesMessage(List<NewsArticle> articles);
 }
