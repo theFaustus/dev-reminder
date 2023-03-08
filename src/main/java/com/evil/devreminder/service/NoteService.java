@@ -13,6 +13,8 @@ public interface NoteService {
 
     Note getRandomNoteByType(NoteType type);
 
+    List<Note> searchNote(NoteType type, String... keywords);
+
     void deleteById(String id);
 
     void update(Note note);

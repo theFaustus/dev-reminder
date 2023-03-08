@@ -4,5 +4,5 @@ import java.io.InputStream;
 import java.util.List;
 
 public interface CSVReaderService {
-    List<String[]> read(InputStream is) throws Exception;
+    List<String[]> process(InputStream is) throws Exception;
 }

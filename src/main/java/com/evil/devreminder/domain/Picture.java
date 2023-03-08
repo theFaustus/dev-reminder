@@ -5,8 +5,9 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Quote {
-    private String text;
-    private String author;
+public class Picture {
+    private String copyRight;
+    private String explanation;
     private String url;
+    private String title;
 }

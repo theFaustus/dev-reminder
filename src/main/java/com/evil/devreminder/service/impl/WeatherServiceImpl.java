@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -20,7 +21,8 @@ import java.util.TimeZone;
 @Service
 @RequiredArgsConstructor
 public class WeatherServiceImpl implements WeatherService {
-    public static final String WEATHER_API_TOKEN = "04c239f07eb248380fc04e42d4d6f450";
+    @Value("${weatherApiToken}")
+    public String weatherApiToken;
     public static final String HTTP_OPENWEATHERMAP_REST = "http://api.openweathermap.org/data/2.5";
     private final RestTemplate restTemplate;
 
@@ -28,7 +30,7 @@ public class WeatherServiceImpl implements WeatherService {
     public Weather getWeatherFor(String city) {
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                HTTP_OPENWEATHERMAP_REST + "/weather?q=" + city + "&units=metric&appid=" + WEATHER_API_TOKEN,
+                HTTP_OPENWEATHERMAP_REST + "/weather?q=" + city + "&units=metric&appid=" + weatherApiToken,
                 String.class);
         try {
             JsonNode root = new ObjectMapper().readTree(response.getBody());
@@ -49,7 +51,7 @@ public class WeatherServiceImpl implements WeatherService {
     public List<WeatherForecast> getWeatherForecastFor(double latitude, double longitude) {
 
         ResponseEntity<String> response = restTemplate.getForEntity(
-                HTTP_OPENWEATHERMAP_REST + "/onecall?lat=" + latitude + "&lon=" + longitude + "&exclude=hourly,minutely&units=metric&appid=" + WEATHER_API_TOKEN,
+                HTTP_OPENWEATHERMAP_REST + "/onecall?lat=" + latitude + "&lon=" + longitude + "&exclude=hourly,minutely&units=metric&appid=" + weatherApiToken,
                 String.class);
         List<WeatherForecast> forecasts = new ArrayList<>();
         try {

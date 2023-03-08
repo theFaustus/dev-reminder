@@ -1,7 +1,6 @@
 package com.evil.devreminder.controller;
 
 import com.evil.devreminder.domain.Note;
-import com.evil.devreminder.domain.NoteType;
 import com.evil.devreminder.service.CSVReaderService;
 import com.evil.devreminder.service.NoteService;
 import lombok.RequiredArgsConstructor;
@@ -93,10 +92,7 @@ public class NoteController {
     @RequestMapping(value = "/upload", method = POST)
     public ResponseEntity<?> uploadNotes(@RequestPart("notes") MultipartFile notes) {
         try {
-            List<String[]> readLines = csvReaderService.read(notes.getInputStream());
-            readLines.stream()
-                    .skip(1)
-                    .forEach(line -> noteService.save(new Note(line[1], line[2], NoteType.valueOf(line[0]))));
+            csvReaderService.process(notes.getInputStream());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());

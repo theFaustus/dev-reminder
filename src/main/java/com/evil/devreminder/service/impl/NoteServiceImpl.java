@@ -8,16 +8,27 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class NoteServiceImpl implements NoteService {
     private final NoteRepository noteRepository;
-    private List<Integer> seenNotes = new ArrayList<>();
+    private Set<Integer> seenSoftwareNotes = new HashSet<>();
+    private Set<Integer> seenSpringNotes = new HashSet<>();
+    private Set<Integer> seenJpaNotes = new HashSet<>();
+
+    private Set<Integer> seenSearchSoftwareNotes = new HashSet<>();
+    private Set<Integer> seenSearchSpringNotes = new HashSet<>();
+    private Set<Integer> seenSearchJpaNotes = new HashSet<>();
 
     @Override
     public Note save(Note note) {
@@ -31,24 +42,55 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public Note getRandomNoteByType(NoteType type) {
-        List<Note> notes = noteRepository.findByNoteType(type);
-        int randomNoteIndex = type == NoteType.SOFTWARE
-                ? getRandomNonRepeatingNoteIndex(notes.size())
-                : new Random().nextInt(notes.size());
+        List<Note> notes = noteRepository.findByNoteTypeOrderByIdAsc(type);
+        int randomNoteIndex = getRandomNonRepeatingNoteSeenIndex(notes.size(), type);
         return notes.isEmpty() ? new Note("unknown", "unknown", type) : notes.get(randomNoteIndex);
     }
 
-    public int getRandomNonRepeatingNoteIndex(int bound) {
+    @Override
+    public List<Note> searchNote(NoteType type, String... keywords) {
+        Set<Note> notes = new HashSet<>();
+        String keyword = String.join(" ", keywords);
+        List<Note> noteByAllKeywords = noteRepository.findByNoteTypeAndMessageLikeOrderByIdAsc(type, keyword);
+        notes.add(noteByAllKeywords.get(getRandomNonRepeatingNoteSearchIndex(noteByAllKeywords.size(), type)));
+
+        keyword = Arrays.stream(keywords).max(Comparator.comparingInt(String::length)).orElse(" ");
+        List<Note> noteByLongestKeyword = noteRepository.findByNoteTypeAndMessageLikeOrderByIdAsc(type, keyword);
+        notes.add(noteByLongestKeyword.get(getRandomNonRepeatingNoteSearchIndex(noteByLongestKeyword.size(), type)));
+
+        return notes.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    }
+
+    public int getRandomNonRepeatingNoteSeenIndex(int bound, NoteType noteType){
+        switch (noteType){
+            case SOFTWARE: return getRandomNonRepeatingNoteIndex(seenSoftwareNotes, bound);
+            case SPRING: return getRandomNonRepeatingNoteIndex(seenSpringNotes, bound);
+            case JPA: return getRandomNonRepeatingNoteIndex(seenJpaNotes, bound);
+            default: return new Random().nextInt(bound);
+        }
+    }
+
+    public int getRandomNonRepeatingNoteSearchIndex(int bound, NoteType noteType){
+        switch (noteType){
+            case SOFTWARE: return getRandomNonRepeatingNoteIndex(seenSearchSoftwareNotes, bound);
+            case SPRING: return getRandomNonRepeatingNoteIndex(seenSearchSpringNotes, bound);
+            case JPA: return getRandomNonRepeatingNoteIndex(seenSearchJpaNotes, bound);
+            default: return new Random().nextInt(bound);
+        }
+    }
+
+    public int getRandomNonRepeatingNoteIndex(Set<Integer> seen, int bound) {
         Random r = new Random();
         int index = r.nextInt(bound);
         int tries = 0;
-        while (seenNotes.contains(index)) {
+        while (seen.contains(index)) {
             index = r.nextInt(bound);
             tries++;
-            if (tries > 10)
-                seenNotes = new ArrayList<>();
+            if (tries > 10) {
+                seen = new HashSet<>();
+            }
         }
-        seenNotes.add(index);
+        seen.add(index);
         return index;
     }
 

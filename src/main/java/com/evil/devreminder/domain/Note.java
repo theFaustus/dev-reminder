@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 @NoArgsConstructor
 @Data
 @Document("notes")
@@ -22,5 +25,6 @@ public class Note {
         this.title = title;
         this.message = message;
         this.noteType = noteType;
+
     }
 }

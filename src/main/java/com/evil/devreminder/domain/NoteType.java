@@ -1,5 +1,5 @@
 package com.evil.devreminder.domain;
 
 public enum NoteType {
-    SOFTWARE, MOTIVATION, PRACTICES
+    SOFTWARE, MOTIVATION, PRACTICES, SPRING, JPA
 }

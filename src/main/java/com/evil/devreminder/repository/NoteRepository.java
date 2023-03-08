@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface NoteRepository extends MongoRepository<Note, String> {
-    List<Note> findByNoteType(NoteType type);
+    List<Note> findByNoteTypeOrderByIdAsc(NoteType type);
+    List<Note> findByNoteTypeAndMessageLikeOrderByIdAsc(NoteType type, String keyword);
 }
