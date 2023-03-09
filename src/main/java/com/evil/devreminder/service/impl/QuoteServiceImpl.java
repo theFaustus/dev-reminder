@@ -21,7 +21,7 @@ import java.util.Collections;
 @Service
 @RequiredArgsConstructor
 public class QuoteServiceImpl implements QuoteService {
-    public static final String HTTPS_QUOTES_REST = "https://quotes.rest";
+    public static final String HTTPS_QUOTES_REST = "https://api.quotable.io";
     private final RestTemplate restTemplate;
 
     @Override
@@ -29,13 +29,10 @@ public class QuoteServiceImpl implements QuoteService {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(HTTPS_QUOTES_REST + "/qod", HttpMethod.GET, requestEntity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(HTTPS_QUOTES_REST + "/random", HttpMethod.GET, requestEntity, String.class);
         try {
             JsonNode root = new ObjectMapper().readTree(response.getBody());
-            return new Quote(
-                    root.path("contents").withArray("quotes").get(0).path("quote").asText(),
-                    root.path("contents").withArray("quotes").get(0).path("author").asText(),
-                    root.path("contents").withArray("quotes").get(0).path("permalink").asText());
+            return new Quote(root.path("content").asText(), root.path("author").asText(), "");
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
