@@ -29,11 +29,11 @@ public class QuoteServiceImpl implements QuoteService {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(HTTPS_QUOTES_REST + "/random", HttpMethod.GET, requestEntity, String.class);
         try {
+            ResponseEntity<String> response = restTemplate.exchange(HTTPS_QUOTES_REST + "/random", HttpMethod.GET, requestEntity, String.class);
             JsonNode root = new ObjectMapper().readTree(response.getBody());
             return new Quote(root.path("content").asText(), root.path("author").asText(), "");
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new Quote("Vooooooid...", "God", "https://tinyurl.com/y5fpyhb7");
