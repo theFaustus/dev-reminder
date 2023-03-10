@@ -148,7 +148,7 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
     @Override
     public String getNewsArticlesMessage(List<NewsArticle> articles) {
         if (articles.isEmpty()) return "No articles found";
-        StringBuilder stringBuilder = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder("\uD83D\uDDDE News that might be of interest for you:\n\n");
         for (final NewsArticle n : articles) {
             stringBuilder
                     .append("⚡️ ").append(namedLink(n.getTitle(), n.getLink()))
