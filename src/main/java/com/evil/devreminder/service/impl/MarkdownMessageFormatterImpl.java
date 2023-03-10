@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MarkdownMessageFormatterImpl implements MessageFormatter {
@@ -162,6 +163,11 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
     }
 
     @Override
+    public String getDailyPhiloMessage(List<Quote> randomQuotes) {
+        return "\uD83D\uDCDA Daily dose of philosophy: \n\n" + randomQuotes.stream().map(q -> "\uD83D\uDCD6 " + "❝" + q.getText() + "❞ - " + italic(q.getAuthor())).collect(Collectors.joining("\n\n"));
+    }
+
+    @Override
     public String getTriviaMessage(Trivia t) {
         return bold("\uD83D\uDDFD History") + " : " + t.getHistoryFact() + "\n" +
                 bold("\uD83D\uDD22 Math") + " : " + t.getMathFact() + "\n" +
@@ -183,7 +189,7 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
         return "Good day sir! Today is " +
                 LocalDateTime.now()
                         .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
-                                        .withZone(ZoneId.systemDefault())) +
+                                .withZone(ZoneId.systemDefault())) +
                 " and here is something that might be of interest for your majesty : \n\n" +
                 getWeatherMessage(w) + "\n\n" +
                 getQuoteMessage(q) + "\n\n" +
@@ -197,7 +203,7 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
         return "Good day sir! Today is " +
                 LocalDateTime.now()
                         .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
-                                        .withZone(ZoneId.systemDefault())) +
+                                .withZone(ZoneId.systemDefault())) +
                 " and here is something that might be of interest for your majesty : \n\n" +
                 getWeatherMessage(w) + "\n\n" +
                 getQuoteMessage(q) + "\n\n" +
@@ -211,7 +217,7 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
         return "Good day sir! Today is " +
                 LocalDateTime.now()
                         .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
-                                        .withZone(ZoneId.systemDefault())) +
+                                .withZone(ZoneId.systemDefault())) +
                 " and here is something that might be of interest for your majesty : \n\n" +
                 getWeatherMessage(w) + "\n\n" +
                 getQuoteMessage(q) + "\n\n" +
@@ -225,7 +231,7 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
         return "Good day sir! Today is " +
                 LocalDateTime.now()
                         .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
-                                        .withZone(ZoneId.systemDefault())) +
+                                .withZone(ZoneId.systemDefault())) +
                 " and here is something that might be of interest for your majesty : \n\n" +
                 getWeatherMessage(w) + "\n\n" +
                 getWeatherForecastMessage(wf, 3) + "\n\n" +
@@ -240,7 +246,7 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
         return "Good day sir! Today is " +
                 LocalDateTime.now()
                         .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
-                                        .withZone(ZoneId.systemDefault())) +
+                                .withZone(ZoneId.systemDefault())) +
                 " and here is something that might be of interest for your majesty : \n\n" +
                 getWeatherMessage(w) + "\n\n" +
                 getWeatherForecastMessage(wf, 3) + "\n\n" +
@@ -256,7 +262,7 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
         return "Good day sir! Today is " +
                 LocalDateTime.now()
                         .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.FULL)
-                                        .withZone(ZoneId.systemDefault())) +
+                                .withZone(ZoneId.systemDefault())) +
                 " and here is something that might be of interest for your majesty : \n\n" +
                 getCryptoMessage(cfgi, cs, 1) + "\n\n" +
                 getWeatherMessage(w) + "\n\n" +

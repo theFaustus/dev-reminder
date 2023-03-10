@@ -57,4 +57,6 @@ public interface MessageFormatter {
     String getHelpMessage();
 
     String getNewsArticlesMessage(List<NewsArticle> articles);
+
+    String getDailyPhiloMessage(List<Quote> randomQuotes);
 }

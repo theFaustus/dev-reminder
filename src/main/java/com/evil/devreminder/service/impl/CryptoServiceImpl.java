@@ -3,7 +3,6 @@ package com.evil.devreminder.service.impl;
 import com.evil.devreminder.domain.Crypto;
 import com.evil.devreminder.domain.CryptoFearGreedIndex;
 import com.evil.devreminder.domain.CryptoFearGreedType;
-import com.evil.devreminder.domain.Quote;
 import com.evil.devreminder.service.CryptoService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

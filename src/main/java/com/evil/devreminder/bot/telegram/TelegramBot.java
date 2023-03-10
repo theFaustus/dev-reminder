@@ -100,6 +100,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         register(new DexWordOfTheDayCommand(mf));
         register(new MerriamWordOfTheDayCommand(mf));
         register(new NewsArticlesCommand(mf));
+        register(new DailyPhilosophyCommand(mf));
         register(new RegularNoteCommand());
         register(new HelpCommand());
 
@@ -170,6 +171,11 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         List<NewsArticle> articles = rssFeedReader.getArticles();
         final String newsArticlesMessage = mf.getNewsArticlesMessage(articles);
         send(computeTelegramMessage(newsArticlesMessage));
+    }
+
+    @Scheduled(cron = "${note.philo.cron.expression}")
+    public void sendDailyPhilosophyNote() {
+        send(computeTelegramMessage(mf.getDailyPhiloMessage(quoteService.getRandomQuotes())));
     }
 
     @Scheduled(cron = "${note.practices.cron.expression}")
@@ -247,6 +253,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
 
                 row = new KeyboardRow();
                 row.add("/news");
+                row.add("/daily_philo");
                 keyboardRowList.add(row);
 
                 replyKeyboardMarkup.setKeyboard(keyboardRowList);
@@ -525,6 +532,25 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         @Override
         public void execute(final AbsSender absSender, final User user, final Chat chat, final String[] strings) {
             final String quoteMessage = mf.getQuoteMessage(quoteService.getQuoteOfTheDay());
+            try {
+                absSender.execute(computeTelegramMessage(quoteMessage));
+            } catch (TelegramApiException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class DailyPhilosophyCommand extends BotCommand {
+        private final MessageFormatter mf;
+
+        public DailyPhilosophyCommand(final MessageFormatter mf) {
+            super("/daily_philo", "get daily dose of philosophy");
+            this.mf = mf;
+        }
+
+        @Override
+        public void execute(final AbsSender absSender, final User user, final Chat chat, final String[] strings) {
+            final String quoteMessage = mf.getDailyPhiloMessage(quoteService.getRandomQuotes());
             try {
                 absSender.execute(computeTelegramMessage(quoteMessage));
             } catch (TelegramApiException e) {

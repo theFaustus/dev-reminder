@@ -1,8 +1,8 @@
 package com.evil.devreminder.config;
 
 import com.evil.devreminder.bot.telegram.TelegramBot;
+import com.evil.devreminder.domain.Quote;
 import com.evil.devreminder.service.QuoteService;
-import com.evil.devreminder.service.RssFeedReader;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -14,6 +14,9 @@ import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+import java.util.Arrays;
+import java.util.List;
+
 @SpringBootApplication(scanBasePackages = {"me.ramswaroop.jbot", "com.evil.devreminder"})
 @EnableScheduling
 @EnableMongoRepositories(basePackages = "com.evil.devreminder.repository")
@@ -24,17 +27,17 @@ public class DevReminderApplication {
         SpringApplication.run(DevReminderApplication.class, args);
     }
 
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
 
-	@Bean
-	public CommandLineRunner commandLineRunner(TelegramBot telegramBot){
-    	return args -> {
-//    		csvReaderService.process(new FileInputStream("C:\\Users\\ipascari\\notes.csv"));
-			TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-			botsApi.registerBot(telegramBot);
-		};
-	}
+    @Bean
+    public CommandLineRunner commandLineRunner(TelegramBot telegramBot) {
+        return args -> {
+            //    		csvReaderService.process(new FileInputStream("C:\\Users\\ipascari\\notes.csv"));
+            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+            botsApi.registerBot(telegramBot);
+        };
+    }
 }
