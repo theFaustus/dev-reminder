@@ -112,7 +112,7 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
 
     @Override
     public String getChatGptMessage(String s) {
-        return "\uD83E\uDD16 ChatGPT > \n\n" + s;
+        return "\uD83E\uDD16 ChatGPT says" + s;
     }
 
     @Override
