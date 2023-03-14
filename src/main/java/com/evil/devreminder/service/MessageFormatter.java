@@ -36,6 +36,7 @@ public interface MessageFormatter {
     String getWeatherMessage(Weather w);
 
     String getSpringNoteMessage(Note n);
+    String getChatGptMessage(String s);
     String getSpringMultipleNotesMessage(List<Note> notes);
     String getJpaNoteMessage(Note n);
     String getJpaMultipleNotesMessage(List<Note> notes);

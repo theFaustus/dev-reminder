@@ -19,6 +19,7 @@ import com.evil.devreminder.service.QuoteService;
 import com.evil.devreminder.service.RssFeedReader;
 import com.evil.devreminder.service.TriviaService;
 import com.evil.devreminder.service.WeatherService;
+import io.github.flashvayne.chatgpt.service.ChatgptService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -52,6 +53,8 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
     private final DictionaryService dictionaryService;
     private final RssFeedReader rssFeedReader;
     private final CryptoService cryptoService;
+    private final ChatgptService chatgptService;
+
     private final MessageFormatter mf;
     @Value("${telegramBotName}")
     private String botName;
@@ -70,7 +73,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
                        final WeatherService weatherService, final TriviaService triviaService,
                        final PictureService pictureService,
                        final DictionaryService dictionaryService,
-                       RssFeedReader rssFeedReader, final CryptoService cryptoService, final MessageFormatter mf) {
+                       RssFeedReader rssFeedReader, final CryptoService cryptoService, ChatgptService chatgptService, final MessageFormatter mf) {
         this.noteService = noteService;
         this.quoteService = quoteService;
         this.weatherService = weatherService;
@@ -79,6 +82,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         this.dictionaryService = dictionaryService;
         this.rssFeedReader = rssFeedReader;
         this.cryptoService = cryptoService;
+        this.chatgptService = chatgptService;
         this.mf = mf;
 
         register(new StartCommand());
@@ -101,6 +105,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
         register(new MerriamWordOfTheDayCommand(mf));
         register(new NewsArticlesCommand(mf));
         register(new DailyPhilosophyCommand(mf));
+        register(new ChatGPTPromptCommand(mf));
         register(new RegularNoteCommand());
         register(new HelpCommand());
 
@@ -124,7 +129,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
     @Override
     public void processNonCommandUpdate(final Update update) {
         send(computeTelegramMessage("Hi, I am Devio. My creator is Ion Pascari. " +
-                                            "My purpose is to serve him. Type /help to see what can I do or /start for home."));
+                "My purpose is to serve him. Type /help to see what can I do or /start for home."));
     }
 
     private SendMessage computeTelegramMessage(String message) {
@@ -140,7 +145,7 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
     private void send(SendMessage sendMessage) {
         try {
             execute(sendMessage);
-        } catch (TelegramApiException e) {
+        } catch (Exception e) {
             log.error("Telegram went down", e);
         }
     }
@@ -256,12 +261,20 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
                 row.add("/daily_philo");
                 keyboardRowList.add(row);
 
+                row = new KeyboardRow();
+                row.add("/prompt");
+                keyboardRowList.add(row);
+
                 replyKeyboardMarkup.setKeyboard(keyboardRowList);
                 sendMessage.setReplyMarkup(replyKeyboardMarkup);
                 sendMessage.setText("Choose an option: ");
                 absSender.execute(sendMessage);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -283,8 +296,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
                 CryptoFearGreedIndex cfgi = cryptoService.getCryptoFearGreedIndex();
                 List<Crypto> cs = cryptoService.getTop5Cryptos();
                 absSender.execute(computeTelegramMessage(mf.getComplexMessage(n, w, wf, q, wd, p, cfgi, cs)));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -338,8 +355,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
                 sendMessage.setReplyMarkup(replyKeyboardMarkup);
                 sendMessage.setText("Choose a category: ");
                 absSender.execute(sendMessage);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -357,8 +378,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String noteMessage = mf.getNoteMessage(noteService.getRandomNoteByType(NoteType.SOFTWARE));
             try {
                 absSender.execute(computeTelegramMessage(noteMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -377,8 +402,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             notes.forEach(n -> {
                 try {
                     absSender.execute(computeTelegramMessage(mf.getNoteMessage(n)));
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    try {
+                        absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                    } catch (TelegramApiException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             });
         }
@@ -397,8 +426,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String noteMessage = mf.getSpringNoteMessage(noteService.getRandomNoteByType(NoteType.SPRING));
             try {
                 absSender.execute(computeTelegramMessage(noteMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -417,10 +450,37 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             notes.forEach(n -> {
                 try {
                     absSender.execute(computeTelegramMessage(mf.getSpringNoteMessage(n)));
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    try {
+                        absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                    } catch (TelegramApiException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             });
+        }
+    }
+
+    private class ChatGPTPromptCommand extends BotCommand {
+        private final MessageFormatter mf;
+
+        public ChatGPTPromptCommand(final MessageFormatter mf) {
+            super("/prompt", "aks chatgpt something");
+            this.mf = mf;
+        }
+
+        @Override
+        public void execute(final AbsSender absSender, final User user, final Chat chat, final String[] strings) {
+            String response = chatgptService.sendMessage(String.join(" ", strings));
+            try {
+                absSender.execute(computeTelegramMessage(mf.getChatGptMessage(response)));
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
     }
 
@@ -438,8 +498,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             notes.forEach(n -> {
                 try {
                     absSender.execute(computeTelegramMessage(mf.getJpaNoteMessage(n)));
-                } catch (TelegramApiException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    try {
+                        absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                    } catch (TelegramApiException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             });
         }
@@ -458,8 +522,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String noteMessage = mf.getJpaNoteMessage(noteService.getRandomNoteByType(NoteType.JPA));
             try {
                 absSender.execute(computeTelegramMessage(noteMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -477,8 +545,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String noteMessage = mf.getNewsArticlesMessage(rssFeedReader.getArticles());
             try {
                 absSender.execute(computeTelegramMessage(noteMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -496,8 +568,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String noteMessage = mf.getNoteMessage(noteService.getRandomNoteByType(NoteType.PRACTICES));
             try {
                 absSender.execute(computeTelegramMessage(noteMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -515,8 +591,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String noteMessage = mf.getNoteMessage(noteService.getRandomNoteByType(NoteType.MOTIVATION));
             try {
                 absSender.execute(computeTelegramMessage(noteMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -534,8 +614,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String quoteMessage = mf.getQuoteMessage(quoteService.getQuoteOfTheDay());
             try {
                 absSender.execute(computeTelegramMessage(quoteMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -553,8 +637,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String quoteMessage = mf.getDailyPhiloMessage(quoteService.getRandomQuotes());
             try {
                 absSender.execute(computeTelegramMessage(quoteMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -572,8 +660,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String triviaMessage = mf.getTriviaMessage(triviaService.getTriviaForToday());
             try {
                 absSender.execute(computeTelegramMessage(triviaMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -591,8 +683,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String weatherMessage = mf.getWeatherMessage(weatherService.getWeatherFor(defaultCity));
             try {
                 absSender.execute(computeTelegramMessage(weatherMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -611,8 +707,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
                     weatherService.getWeatherForecastFor(latitude, longitude));
             try {
                 absSender.execute(computeTelegramMessage(weatherMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -632,8 +732,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String cryptoMessage = mf.getCryptoMessage(cryptoFearGreedIndex, cryptos, 5);
             try {
                 absSender.execute(computeTelegramMessage(cryptoMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -651,8 +755,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String dictionaryMessage = mf.getDictionaryMessage(dictionaryService.getRomanianWordOfTheDay());
             try {
                 absSender.execute(computeTelegramMessage(dictionaryMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -672,8 +780,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
                 final SendMessage message = computeTelegramMessage(dictionaryMessage);
 
                 absSender.execute(message);
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }
@@ -691,8 +803,12 @@ public class TelegramBot extends TelegramLongPollingCommandBot {
             final String triviaMessage = mf.getPictureMessage(pictureService.getPictureOfTheDay());
             try {
                 absSender.execute(computeTelegramMessage(triviaMessage));
-            } catch (TelegramApiException e) {
-                e.printStackTrace();
+            } catch (Exception e) {
+                try {
+                    absSender.execute(computeTelegramMessage("Oops, something went wrong: " + e.getMessage()));
+                } catch (TelegramApiException ex) {
+                    ex.printStackTrace();
+                }
             }
         }
     }

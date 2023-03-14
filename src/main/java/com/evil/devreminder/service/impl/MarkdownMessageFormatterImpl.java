@@ -111,6 +111,11 @@ public class MarkdownMessageFormatterImpl implements MessageFormatter {
     }
 
     @Override
+    public String getChatGptMessage(String s) {
+        return "\uD83E\uDD16 ChatGPT > \n\n" + s;
+    }
+
+    @Override
     public String getSpringMultipleNotesMessage(final List<Note> notes) {
         if (notes.isEmpty()) return "No results by your search criteria";
         StringBuilder stringBuilder = new StringBuilder();
